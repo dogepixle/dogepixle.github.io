@@ -7,8 +7,14 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <script src="https://unpkg.com/@tonconnect/ui@latest"></script>
+  <script src="https://unpkg.com/@tonconnect/sdk@0.0.14/dist/tonconnect-sdk.min.js"></script>
   <script>
+    // Initialize TON Connect SDK
+    const tonConnect = new TONConnect.SDK({
+      manifestUrl: 'https://dogepixel.com/tonconnect-manifest.json' // Replace with your actual manifest URL
+    });
+
+    // Countdown Timer
     document.addEventListener('DOMContentLoaded', () => {
       const countdown = document.getElementById('countdown');
       const endDate = new Date('2025-08-04T17:00:00').getTime();
@@ -27,20 +33,15 @@
           countdown.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
       }, 1000);
-
-      const tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
-        manifestUrl: 'https://yourdomain.com/tonconnect-manifest.json',
-        buttonRootId: 'ton-connect-btn'
-      });
-
-      window.tonConnectUI = tonConnectUI;
     });
 
+    // Task states
     const taskStates = {
       1: { state: 'join', link: 'https://t.me/DogePixelTeam' },
       2: { state: 'join', link: 'https://t.me/doge_Pixel' }
     };
 
+    // Handle task button click
     function handleTask(id) {
       const btn = document.getElementById(`task-btn-${id}`);
       if (taskStates[id].state === 'join') {
@@ -62,24 +63,28 @@
       }
     }
 
+    // Telegram Connect for task verification
     function connectTelegram() {
       alert('Connecting to Telegram to verify tasks...');
     }
 
-    async function claimTokens(type) {
-      const {account} = await window.tonConnectUI.connector.connect();
-      const address = "UQD7zTcEBRLNnI9DXJfzkauk0gP_PqerayMyOXfkiZ7UyGhj";
-      const amountNano = BigInt(0.43 * 1e9).toString();
-      await window.tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 600,
-        messages: [
-          {
-            address,
-            amount: amountNano,
-          },
-        ],
-      });
-      alert(type === 'main' ? '0.43 TON sent for main claim!' : '0.43 TON sent for referral claim!');
+    // TON Wallet Connection
+    let walletConnected = false;
+    async function connectTONWallet() {
+      try {
+        await tonConnect.connect();
+        walletConnected = true;
+        document.getElementById('connect-btn').classList.add('hidden');
+        document.getElementById('claim-btn').classList.remove('hidden');
+        alert('TON Wallet connected successfully!');
+      } catch (error) {
+        console.error('TON Wallet connection failed:', error);
+        alert('Failed to connect TON Wallet. Please try again.');
+      }
+    }
+
+    function claimTokens(type) {
+      alert(type === 'main' ? 'Sending 0.43 TON for main claim...' : 'Sending 0.43 TON for referral claim...');
     }
 
     function copyReferralLink() {
@@ -90,68 +95,92 @@
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-900 to-gray-900 text-white font-sans" style="font-family: 'Inter', sans-serif;">
   <div class="max-w-xl mx-auto p-6">
+    <!-- Header -->
     <header class="flex items-center gap-4 mb-8">
       <img src="https://iili.io/FwRRNN2.png" alt="Doge Pixel" class="h-12 w-12 rounded-full">
       <h1 class="text-3xl font-bold text-yellow-400">Doge Pixel</h1>
     </header>
 
-    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg text-center mb-8">
+    <!-- Airdrop Countdown -->
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg transform transition hover:scale-105 mb-8 text-center">
       <h2 class="text-2xl font-semibold text-yellow-400 mb-2">Airdrop Ends In</h2>
-      <p id="countdown" class="text-3xl font-bold">Loading...</p>
+      <p id="countdown" class="text-3xl font-bold text-white">Loading...</p>
       <p class="text-sm text-gray-400 mt-2">August 4, 2025, 17:00</p>
     </div>
 
-    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg mb-8">
+    <!-- Token Introduction -->
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg transform transition hover:scale-105 mb-8">
       <h2 class="text-2xl font-semibold text-yellow-400 mb-3">Doge Pixel</h2>
-      <p class="text-gray-300">Doge Pixel – The Future of Fun Finance!
+      <p class="text-gray-300"> Doge Pixel – The Future of Fun Finance!
+
 Unleashing pixelated power through meme magic,
+
 Backed by community, driven by creativity.
+
 Claim your share in the Doge Pixel revolution,
+
 Where each token holds playful potential.
+
 Join tasks, earn rewards, and grow with us!
-Doge Pixel – Not just a token, it's a movement</p>
+
+Doge Pixel – Not just a token, it's a movement
+
+</p>
     </div>
 
+    <!-- Tasks Section -->
     <div class="mb-8">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-semibold text-yellow-400">
-          <img src="https://iili.io/Fw10gvR.png" class="inline-block w-6 h-6 mr-2">Complete Tasks
+          <img src="https://iili.io/Fw10gvR.png" alt="Tasks Icon" class="inline-block w-6 h-6 mr-2">Complete Tasks
         </h2>
-        <button onclick="connectTelegram()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">Telegram Connect</button>
+        <button onclick="connectTelegram()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">Telegram Connect</button>
       </div>
       <div class="grid gap-4">
-        <div class="bg-gray-800 p-5 rounded-2xl flex justify-between items-center">
+        <div class="bg-gray-800 p-5 rounded-2xl flex justify-between items-center transform transition hover:scale-105">
           <span class="text-gray-200">Join DogePixel Team</span>
-          <button id="task-btn-1" onclick="handleTask(1)" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">Join</button>
+          <button id="task-btn-1" onclick="handleTask(1)" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">Join</button>
         </div>
-        <div class="bg-gray-800 p-5 rounded-2xl flex justify-between items-center">
+        <div class="bg-gray-800 p-5 rounded-2xl flex justify-between items-center transform transition hover:scale-105">
           <span class="text-gray-200">Join Doge Pixel</span>
-          <button id="task-btn-2" onclick="handleTask(2)" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">Join</button>
+          <button id="task-btn-2" onclick="handleTask(2)" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">Join</button>
         </div>
       </div>
     </div>
 
-    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg mb-8">
+    <!-- Claim Section -->
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg transform transition hover:scale-105 mb-8">
       <h2 class="text-2xl font-semibold text-yellow-400 mb-3">
-        <img src="https://iili.io/Fw10iQt.png" class="inline-block w-6 h-6 mr-2">Claim Tokens
+        <img src="https://iili.io/Fw10iQt.png" alt="Claim Icon" class="inline-block w-6 h-6 mr-2">Claim Tokens
       </h2>
-      <p class="text-gray-300 mb-2">Claim Your Doge Pixel Tokens! Each user can claim 12,000 Doge Pixel tokens as part of our exclusive airdrop campaign. Join the community, complete the tasks, and secure your share before the supply runs out!</p>
+      <p class="text-gray-300 mb-2">Claim Your Doge Pixel Tokens!
+
+Each user can claim 12,000 Doge Pixel tokens
+
+as part of our exclusive airdrop campaign.
+
+Join the community, complete the tasks,
+
+and secure your share before the supply runs out!
+
+</p>
       <p class="text-sm text-gray-400 mb-4">First Come, First Serve – Limited to 40,000 Users!</p>
-      <div id="ton-connect-btn" class="mb-4"></div>
-      <button id="claim-btn" onclick="claimTokens('main')" class="bg-pink-600 hover:bg-pink-700 px-6 py-3 rounded-lg w-full text-lg font-semibold">Claim Now</button>
+      <button id="connect-btn" onclick="connectTONWallet()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg w-full text-lg font-semibold transition mb-2">Connect TON Wallet</button>
+      <button id="claim-btn" onclick="claimTokens('main')" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg w-full text-lg font-semibold transition hidden">Claim Now</button>
     </div>
 
-    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
+    <!-- Referral Section -->
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg transform transition hover:scale-105">
       <h2 class="text-2xl font-semibold text-yellow-400 mb-3">
-        <img src="https://iili.io/Fw10PjI.png" class="inline-block w-6 h-6 mr-2">Referral
+        <img src="https://iili.io/Fw10PjI.png" alt="Referral Icon" class="inline-block w-6 h-6 mr-2">Referral
       </h2>
       <p class="text-gray-300 mb-2">Invite friends and earn 3,000 $DOGEPIXEL per referral!</p>
       <div class="flex items-center bg-gray-900 p-3 rounded-lg mb-3">
         <input type="text" readonly value="https://dogepixel.com/?ref=123456" class="flex-1 bg-transparent text-sm text-gray-300" />
-        <button onclick="copyReferralLink()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">Copy</button>
+        <button onclick="copyReferralLink()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">Copy</button>
       </div>
       <p class="text-sm text-gray-400 mb-3">Referrals: <span class="font-bold">0</span></p>
-      <button onclick="claimTokens('referral')" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg w-full text-lg font-semibold">Claim Referral Tokens</button>
+      <button onclick="claimTokens('referral')" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg w-full text-lg font-semibold transition">Claim Referral Tokens</button>
     </div>
   </div>
 </body>
