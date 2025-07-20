@@ -11,28 +11,35 @@
   <script>
     // Initialize TON Connect SDK
     const tonConnect = new TONConnect.SDK({
-      manifestUrl: 'https://dogepixle.github.io/tonconnect-manifest.json' // Replace with your actual manifest URL
+      manifestUrl: 'https://dogepixle.github.io/tonconnect-manifest.json'
     });
 
     // Countdown Timer
     document.addEventListener('DOMContentLoaded', () => {
-      const countdown = document.getElementById('countdown');
-      const endDate = new Date('2025-08-04T17:00:00').getTime();
+      const countdownElement = document.getElementById('countdown');
+      if (!countdownElement) {
+        console.error('Countdown element not found!');
+        return;
+      }
 
-      const timer = setInterval(() => {
+      const endDate = new Date('2025-08-04T17:00:00').getTime();
+      function updateCountdown() {
         const now = new Date().getTime();
         const distance = endDate - now;
         if (distance <= 0) {
-          countdown.innerHTML = 'Airdrop Ended';
+          countdownElement.innerHTML = 'Airdrop Ended';
           clearInterval(timer);
         } else {
           const days = Math.floor(distance / (1000 * 60 * 60 * 24));
           const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
           const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
           const seconds = Math.floor((distance % (1000 * 60)) / 1000);
-          countdown.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+          countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
         }
-      }, 1000);
+      }
+
+      updateCountdown(); // Initial update
+      const timer = setInterval(updateCountdown, 1000);
     });
 
     // Task states
@@ -79,7 +86,7 @@
         alert('TON Wallet connected successfully!');
       } catch (error) {
         console.error('TON Wallet connection failed:', error);
-        alert('Failed to connect TON Wallet. Please try again.');
+        alert('Failed to connect TON Wallet. Please try again. Error: ' + error.message);
       }
     }
 
@@ -153,18 +160,18 @@ Doge Pixel – Not just a token, it's a movement
       <h2 class="text-2xl font-semibold text-yellow-400 mb-3">
         <img src="https://iili.io/Fw10iQt.png" alt="Claim Icon" class="inline-block w-6 h-6 mr-2">Claim Tokens
       </h2>
-      <p class="text-gray-300 mb-2">Claim Your Doge Pixel Tokens!
+      <p class="text-gray-300 mb-2">Claim Your Doge পিক্সেল টোকেন!
 
-Each user can claim 12,000 Doge Pixel tokens
+প্রতিটি ইউজার আমাদের এক্সক্লুসিভ এয়ারড্রপ ক্যাম্পেইনের অংশ হিসেবে
 
-as part of our exclusive airdrop campaign.
+১২,০০০ Doge Pixel টোকেন ক্লেইম করতে পারে।
 
-Join the community, complete the tasks,
+কমিউনিটিতে যোগ দিন, টাস্কগুলো সম্পন্ন করুন,
 
-and secure your share before the supply runs out!
+এবং সাপ্লাই শেষ হওয়ার আগে আপনার শেয়ার সুরক্ষিত করুন!
 
 </p>
-      <p class="text-sm text-gray-400 mb-4">First Come, First Serve – Limited to 40,000 Users!</p>
+      <p class="text-sm text-gray-400 mb-4">প্রথমে আসুন, প্রথমে পান – ৪০,০০০ ইউজারের জন্য সীমিত!</p>
       <button id="connect-btn" onclick="connectTONWallet()" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg w-full text-lg font-semibold transition mb-2">Connect TON Wallet</button>
       <button id="claim-btn" onclick="claimTokens('main')" class="bg-green-600 hover:bg-green-700 px-6 py-3 rounded-lg w-full text-lg font-semibold transition hidden">Claim Now</button>
     </div>
@@ -174,7 +181,7 @@ and secure your share before the supply runs out!
       <h2 class="text-2xl font-semibold text-yellow-400 mb-3">
         <img src="https://iili.io/Fw10PjI.png" alt="Referral Icon" class="inline-block w-6 h-6 mr-2">Referral
       </h2>
-      <p class="text-gray-300 mb-2">Invite friends and earn 3,000 $DOGEPIXEL per referral!</p>
+      <p class="text-gray-300 mb-2">বন্ধুদের আমন্ত্রণ করুন এবং প্রতি রেফারেলে ৩,০০০ $DOGEPIXEL আয় করুন!</p>
       <div class="flex items-center bg-gray-900 p-3 rounded-lg mb-3">
         <input type="text" readonly value="https://dogepixel.com/?ref=123456" class="flex-1 bg-transparent text-sm text-gray-300" />
         <button onclick="copyReferralLink()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm transition">Copy</button>
